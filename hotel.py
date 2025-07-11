@@ -1,35 +1,38 @@
 import streamlit as st
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
-import re
-import numpy as np
+import matplotlib as mpl
 import traceback
 
-plt.rcParams['font.family'] = 'DejaVu Sans'
+mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['axes.unicode_minus'] = False
+
+def extract_score(text):
+    import re
+    import numpy as np
+    match = re.match(r'(\d+\.\d+)', str(text))
+    return float(match.group(1)) if match else np.nan
+
+def extract_discount(text):
+    import re
+    import numpy as np
+    match = re.search(r'(\d+)%', str(text))
+    return int(match.group(1)) if match else 0
+
+def extract_price(text):
+    import re
+    import numpy as np
+    match = re.search(r'¥(\d{1,3}(?:,\d{3})*)', str(text))
+    if match:
+        price_str = match.group(1).replace(',', '')
+        return int(price_str)
+    return np.nan
 
 try:
     df = pd.read_csv("hotelEn.csv")
-
     st.write("Columns:", df.columns.tolist())
-    st.write("Data sample:", df.head())
-
-    def extract_score(text):
-        match = re.search(r'(\d\.\d+)', str(text))
-        return float(match.group(1)) if match else np.nan
-
-    def extract_discount(text):
-        match = re.search(r'(\d+)%', str(text))
-        return int(match.group(1)) if match else 0
-
-    def extract_price(text):
-        match = re.search(r'(\d{1,3}(,\d{3})*)', str(text))  # 去掉 ¥
-        if match:
-            price_str = match.group(1).replace(',', '')
-            return int(price_str)
-        return np.nan
+    st.write("Sample data:", df.head())
 
     df["Score"] = df["Rating & Reviews"].apply(extract_score)
     df["Discount (%)"] = df["Discount"].apply(extract_discount)
@@ -60,5 +63,5 @@ try:
         ax.get_legend().remove()
     st.pyplot(fig)
 
-except Exception:
-    st.error(f"Error occurred:\n{traceback.format_exc()}")
+except Exception as e:
+    st.error(f"Error:\n{traceback.format_exc()}")
