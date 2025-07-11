@@ -32,7 +32,8 @@ df["Price (Yen)"] = df["Price (Tax Included)"].apply(extract_price)
 hotel_names = df["Hotel Name"]
 
 plt.figure(figsize=(12, 6))
-sns.barplot(x=df["Score"], y=hotel_names, palette="coolwarm")
+sns.barplot(x=df["Score"], y=hotel_names, palette="coolwarm", hue=hotel_names, legend=False)
+
 plt.title("Score by Hotel")
 plt.xlabel("Score")
 plt.ylabel("Hotel Name")
@@ -40,7 +41,7 @@ plt.tight_layout()
 plt.show()
 
 plt.figure(figsize=(12, 6))
-sns.barplot(x=df["Discount (%)"], y=hotel_names, palette="YlGnBu")
+sns.barplot(x=df["Discount (%)"], y=hotel_names, palette="YlGnBu", hue=hotel_names, legend=False)
 plt.title("Discount Rate (%) by Hotel")
 plt.xlabel("Discount Rate (%)")
 plt.ylabel("Hotel Name")
@@ -48,7 +49,8 @@ plt.tight_layout()
 plt.show()
 
 plt.figure(figsize=(12, 6))
-sns.barplot(x=df["Price (Yen)"], y=hotel_names, palette="OrRd")
+sns.barplot(x=df["Price (Yen)"], y=hotel_names, palette="OrRd", hue=hotel_names, legend=False)
+
 plt.title("Minimum Price (Yen) by Hotel")
 plt.xlabel("Price (Yen)")
 plt.ylabel("Hotel Name")
