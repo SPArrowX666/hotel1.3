@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import re
 import numpy as np
+import streamlit as st
 
 df = pd.read_csv("hotelEn.csv")
 
