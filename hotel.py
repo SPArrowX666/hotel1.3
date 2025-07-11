@@ -39,7 +39,7 @@ try:
     st.title("Hotel Data Analysis")
 
     # 读csv
-    df = pd.read_csv("hotelEn.csv")
+    df = pd.read_csv("hotelEn.csv", sep='\t')
 
     st.subheader("Original Data Sample")
     st.write(df.head(10))
