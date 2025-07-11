@@ -13,6 +13,9 @@ mpl.rcParams['axes.unicode_minus'] = False
 try:
     df = pd.read_csv("hotelEn.csv")
 
+    st.write("Columns:", df.columns.tolist())
+    st.write("Data sample:", df.head())
+
     def extract_score(text):
         match = re.search(r'(\d\.\d+)', str(text))
         return float(match.group(1)) if match else np.nan
@@ -22,7 +25,7 @@ try:
         return int(match.group(1)) if match else 0
 
     def extract_price(text):
-        match = re.search(r'¥(\d{1,3}(,\d{3})*)', str(text))
+        match = re.search(r'(\d{1,3}(,\d{3})*)', str(text))  # 去掉 ¥
         if match:
             price_str = match.group(1).replace(',', '')
             return int(price_str)
@@ -31,9 +34,11 @@ try:
     df["Score"] = df["Rating & Reviews"].apply(extract_score)
     df["Discount (%)"] = df["Discount"].apply(extract_discount)
     df["Price (Yen)"] = df["Price (Tax Included)"].apply(extract_price)
+
+    st.write(df[["Hotel Name", "Score", "Discount (%)", "Price (Yen)"]].head())
+
     hotel_names = df["Hotel Name"]
 
-    
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(x=df["Score"], y=hotel_names, palette="coolwarm", ax=ax)
     ax.set(title="Score by Hotel", xlabel="Score", ylabel="Hotel Name")
@@ -41,7 +46,6 @@ try:
         ax.get_legend().remove()
     st.pyplot(fig)
 
-    
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(x=df["Discount (%)"], y=hotel_names, palette="YlGnBu", ax=ax)
     ax.set(title="Discount Rate (%) by Hotel", xlabel="Discount Rate (%)", ylabel="Hotel Name")
@@ -49,7 +53,6 @@ try:
         ax.get_legend().remove()
     st.pyplot(fig)
 
-    
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(x=df["Price (Yen)"], y=hotel_names, palette="OrRd", ax=ax)
     ax.set(title="Minimum Price (Yen) by Hotel", xlabel="Price (Yen)", ylabel="Hotel Name")
