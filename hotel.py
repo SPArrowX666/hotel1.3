@@ -7,19 +7,19 @@ import re
 import numpy as np
 import traceback
 
-# 设置字体和负号显示
+# 设置字体和负号正常显示
 mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['axes.unicode_minus'] = False
 
-# 提取评分函数
+# 改进版评分提取函数：用 re.search 全文匹配第一个浮点数
 def extract_score(text):
     try:
-        match = re.match(r'(\d+\.\d+)', str(text))
+        match = re.search(r'(\d+\.\d+)', str(text))
         return float(match.group(1)) if match else np.nan
     except:
         return np.nan
 
-# 提取折扣函数
+# 折扣提取函数，提取百分比数字，没有则返回0
 def extract_discount(text):
     try:
         match = re.search(r'(\d+)%', str(text))
@@ -27,7 +27,7 @@ def extract_discount(text):
     except:
         return 0
 
-# 提取价格函数
+# 价格提取函数，匹配“¥”后数字，支持千分位逗号
 def extract_price(text):
     try:
         match = re.search(r'¥(\d{1,3}(?:,\d{3})*)', str(text))
@@ -39,25 +39,24 @@ def extract_price(text):
         return np.nan
 
 try:
-    # 读取数据
+    # 读取CSV文件，注意路径是否正确
     df = pd.read_csv("hotelEn.csv")
 
-    # 显示表头确认加载成功
     st.write("CSV columns:", df.columns.tolist())
-    st.write("CSV sample data:", df.head())
+    st.write("Sample data:", df.head())
 
     # 应用提取函数
     df["Score"] = df["Rating & Reviews"].apply(extract_score)
     df["Discount (%)"] = df["Discount"].apply(extract_discount)
     df["Price (Yen)"] = df["Price (Tax Included)"].apply(extract_price)
 
-    # 显示提取后的数据确认
-    st.write("Parsed Score and Discount sample:")
+    # 输出提取结果预览，确认数据是否正确
+    st.write("Extracted Score and Discount samples:")
     st.write(df[["Hotel Name", "Score", "Discount (%)", "Price (Yen)"]].head(10))
 
     hotel_names = df["Hotel Name"]
 
-    # 判断数据是否有有效数值
+    # 根据数据有效性决定是否绘制图表
     if df["Score"].dropna().empty:
         st.warning("Warning: No valid Score data found!")
     else:
