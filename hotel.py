@@ -9,7 +9,7 @@ import seaborn as sns
 import re
 import numpy as np
 
-df = pd.read_csv("translated_hotels.csv")
+df = pd.read_csv("hotelEn.csv")
 
 def extract_score(text):
     match = re.search(r'(\d\.\d+)', str(text))
