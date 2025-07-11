@@ -7,56 +7,54 @@ import re
 import numpy as np
 import traceback
 
-# 设置字体和负号正常显示
+# 字体和负号设置，避免乱码
 mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['axes.unicode_minus'] = False
 
-# 改进版评分提取函数：用 re.search 全文匹配第一个浮点数
+# 正则提取评分
 def extract_score(text):
-    try:
-        match = re.search(r'(\d+\.\d+)', str(text))
-        return float(match.group(1)) if match else np.nan
-    except:
+    if text is None or (isinstance(text, float) and np.isnan(text)):
         return np.nan
+    match = re.search(r'(\d+\.\d+)', str(text))
+    return float(match.group(1)) if match else np.nan
 
-# 折扣提取函数，提取百分比数字，没有则返回0
+# 正则提取折扣（百分比整数）
 def extract_discount(text):
-    try:
-        match = re.search(r'(\d+)%', str(text))
-        return int(match.group(1)) if match else 0
-    except:
+    if text is None or (isinstance(text, float) and np.isnan(text)):
         return 0
+    match = re.search(r'(\d+)%', str(text))
+    return int(match.group(1)) if match else 0
 
-# 价格提取函数，匹配“¥”后数字，支持千分位逗号
+# 正则提取价格（整数，去逗号）
 def extract_price(text):
-    try:
-        match = re.search(r'¥(\d{1,3}(?:,\d{3})*)', str(text))
-        if match:
-            price_str = match.group(1).replace(',', '')
-            return int(price_str)
+    if text is None or (isinstance(text, float) and np.isnan(text)):
         return np.nan
-    except:
-        return np.nan
+    match = re.search(r'¥(\d{1,3}(?:,\d{3})*)', str(text))
+    if match:
+        price_str = match.group(1).replace(',', '')
+        return int(price_str)
+    return np.nan
 
 try:
-    # 读取CSV文件，注意路径是否正确
+    st.title("Hotel Data Analysis")
+
+    # 读csv
     df = pd.read_csv("hotelEn.csv")
 
-    st.write("CSV columns:", df.columns.tolist())
-    st.write("Sample data:", df.head())
+    st.subheader("Original Data Sample")
+    st.write(df.head(10))
 
-    # 应用提取函数
+    # 提取数据列
     df["Score"] = df["Rating & Reviews"].apply(extract_score)
     df["Discount (%)"] = df["Discount"].apply(extract_discount)
     df["Price (Yen)"] = df["Price (Tax Included)"].apply(extract_price)
 
-    # 输出提取结果预览，确认数据是否正确
-    st.write("Extracted Score and Discount samples:")
+    st.subheader("Extracted Score, Discount, Price")
     st.write(df[["Hotel Name", "Score", "Discount (%)", "Price (Yen)"]].head(10))
 
     hotel_names = df["Hotel Name"]
 
-    # 根据数据有效性决定是否绘制图表
+    # 评分图表
     if df["Score"].dropna().empty:
         st.warning("Warning: No valid Score data found!")
     else:
@@ -67,6 +65,7 @@ try:
             ax.get_legend().remove()
         st.pyplot(fig)
 
+    # 折扣图表
     if df["Discount (%)"].sum() == 0:
         st.warning("Warning: No valid Discount data found!")
     else:
@@ -77,6 +76,7 @@ try:
             ax.get_legend().remove()
         st.pyplot(fig)
 
+    # 价格图表
     if df["Price (Yen)"].dropna().empty:
         st.warning("Warning: No valid Price data found!")
     else:
@@ -88,4 +88,4 @@ try:
         st.pyplot(fig)
 
 except Exception:
-    st.error("An error occurred:\n" + traceback.format_exc())
+    st.error("Error occurred:\n" + traceback.format_exc())
